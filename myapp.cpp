@@ -232,7 +232,7 @@ static void mainProg1(MyEndpoint &ep)
     std::cout << "*** PJSUA2 STARTED ***" << std::endl;
     // Add account
     AccountConfig acc_cfg;
-    acc_cfg.idUri = "sip:test1@pjsip.org";
+    acc_cfg.idUri = "sip:test1@pjsip.org;transport=tls";
     acc_cfg.regConfig.registrarUri = "sip:sip.pjsip.org";
 #if PJSIP_HAS_DIGEST_AKA_AUTH
     AuthCredInfo aci("Digest", "*", "test", PJSIP_CRED_DATA_EXT_AKA | PJSIP_CRED_DATA_PLAIN_PASSWD, "passwd");
@@ -253,8 +253,8 @@ static void mainProg1(MyEndpoint &ep)
     acc->calls.push_back(call);
     CallOpParam prm(true);
     prm.opt.audioCount = 1;
-    prm.opt.videoCount = 0;
-    call->makeCall("sip:98912631092@zoomcrc.com;transport=tls", prm);
+    prm.opt.videoCount = 1;
+    call->makeCall("sip:98912631092.523337@zoomcrc.com;transport=tls", prm);
     // Hangup all calls
     pj_thread_sleep(4000);
     ep.hangupAllCalls();
@@ -318,9 +318,7 @@ static void mainProg2(MyEndpoint &ep)
 #if USE_TEST == 3
 static void mainProg3(MyEndpoint &ep)
 {
-    const char *paths[] = { "../../../../tests/pjsua/wavs/input.16.wav",
-                "../../tests/pjsua/wavs/input.16.wav",
-                "input.16.wav"};
+    const char *paths[] = { "/Users/thossain/Documents/pjsip_cpp_test_prog/input.16.wav"};
     unsigned i;
     const char *filename = NULL;
 
@@ -360,15 +358,23 @@ static void mainProg3(MyEndpoint &ep)
 
     // Create player and recorder
     {
-    AudioMediaPlayer amp;
-    amp.createPlayer(filename);
+//    AudioMediaPlayer amp;
+//    amp.createPlayer(filename);
+        
+    AudioMediaPlayer player;
+    AudioMedia& play_med = Endpoint::instance().audDevManager().getPlaybackDevMedia();
+    try {
+        player.createPlayer(filename);
+        player.startTransmit(play_med);
+    } catch(Error& err) {
+    }
 
-    AudioMediaRecorder amr;
-    amr.createRecorder("recorder_test_output.wav");
-
-    amp.startTransmit(amr);
-    if (auddev2.isOpened())
-        amp.startTransmit(auddev2);
+//    AudioMediaRecorder amr;
+//    amr.createRecorder("/Users/thossain/Documents/pjsip_cpp_test_prog/recorder_test_output.wav");
+//
+//    amp.startTransmit(amr);
+//    if (auddev2.isOpened())
+//        amp.startTransmit(auddev2);
 
     pj_thread_sleep(5000);
     }
